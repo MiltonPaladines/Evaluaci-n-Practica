@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('juegos', function (Blueprint $table) {
             $table->id();
             $table->string('titulo');
-            $table->string('descripcion-corta')->nullable();
-            $table->text('descripcion-larga')->nullable();
+            $table->string('descripcion_corta')->nullable();
+            $table->text('descripcion_larga')->nullable();
             //Precio normal y de oferta
-            $table->decimal('precio-normal',8,2)->nullable(); //8 digitos, 2 decimales
-            $table->decimal('precio-oferta',8,2)->nullable();
+            $table->decimal('precio_normal',8,2)->nullable(); //8 digitos, 2 decimales
+            $table->decimal('precio_oferta',8,2)->nullable();
 
             //Firebase Storage URL
             $table->string('imagen_url', 500)->nullable();

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('generos', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
