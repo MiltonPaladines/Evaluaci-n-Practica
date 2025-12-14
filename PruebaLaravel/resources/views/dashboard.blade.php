@@ -556,17 +556,8 @@
         </div>
     </div>
 
-    <!-- Modal para mostrar juegos filtrados -->
-    <div id="modalJuegosFiltrados" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeModalFiltrados()">&times;</span>
-                <h2 id="filtroTitle">Juegos</h2>
-            </div>
-
-            <div id="juegosFiltradosContainer" class="grid"></div>
-        </div>
-    </div>
+    <!-- Modal para agregar/editar juego -->
+    <div id="modalJuego" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <span class="close" onclick="closeModalJuego()">&times;</span>
@@ -732,57 +723,26 @@
                     }
                 });
                 const result = await response.json();
-                
-                if (!response.ok || !result.success) {
-                    showModalAlert('Error: No se pudo cargar el juego', 'error');
-                    return;
-                }
+                const juego = result.data || result;
 
-                const juego = result.data;
-                
-                console.log('Juego cargado:', juego);
-
-                // Esperar un pequeño delay para asegurar que los selectores están listos
-                await new Promise(resolve => setTimeout(resolve, 150));
-
-                // Rellenar campos de texto
                 document.getElementById('juegoTitulo').value = juego.titulo || '';
                 document.getElementById('juegoDescripcionCorta').value = juego.descripcion_corta || '';
                 document.getElementById('juegoDescripcionLarga').value = juego.descripcion_larga || '';
                 document.getElementById('juegoPrecioNormal').value = juego.precio_normal || '';
                 document.getElementById('juegoPrecioOferta').value = juego.precio_oferta || '';
+                document.getElementById('juegoPlataforma').value = juego.plataforma_id || '';
                 document.getElementById('juegoImagenUrl').value = juego.imagen_url || '';
-                document.getElementById('juegoDestacado').checked = !!juego.destacado;
-                document.getElementById('juegoActivo').checked = !!juego.activo;
-
-                // Seleccionar plataforma
-                const plataformaSelect = document.getElementById('juegoPlataforma');
-                if (juego.plataforma && juego.plataforma.id) {
-                    plataformaSelect.value = juego.plataforma.id;
-                    console.log('Plataforma seleccionada:', juego.plataforma.id);
-                } else if (juego.plataforma_id) {
-                    plataformaSelect.value = juego.plataforma_id;
-                    console.log('Plataforma seleccionada (por ID):', juego.plataforma_id);
-                }
+                document.getElementById('juegoDestacado').checked = juego.destacado || false;
+                document.getElementById('juegoActivo').checked = juego.activo || false;
 
                 // Marcar géneros seleccionados
-                const generosIds = juego.generos && juego.generos.length > 0 
-                    ? juego.generos.map(g => g.id) 
-                    : [];
-                
-                console.log('Géneros a marcar:', generosIds);
-                
-                const checkboxes = document.querySelectorAll('input[name="generos[]"]');
-                checkboxes.forEach(checkbox => {
-                    const checkboxId = parseInt(checkbox.value);
-                    const shouldBeChecked = generosIds.includes(checkboxId);
-                    checkbox.checked = shouldBeChecked;
-                    console.log(`Checkbox ${checkboxId}: ${shouldBeChecked}`);
+                const generosIds = juego.generos ? juego.generos.map(g => g.id) : [];
+                document.querySelectorAll('input[name="generos[]"]').forEach(checkbox => {
+                    checkbox.checked = generosIds.includes(parseInt(checkbox.value));
                 });
-
             } catch (error) {
                 console.error('Error al cargar juego:', error);
-                showModalAlert('Error de conexión al cargar el juego', 'error');
+                showModalAlert('Error al cargar los datos del juego', 'error');
             }
         }
 
@@ -1021,7 +981,7 @@
                 
                 if (Array.isArray(plataformas) && plataformas.length > 0) {
                     container.innerHTML = plataformas.map(plataforma => `
-                        <div class="card" onclick="filtrarPorPlataforma(${plataforma.id}, '${plataforma.nombre.replace(/'/g, "\\'")}')">
+                        <div class="card">
                             <div class="card-title">${plataforma.nombre}</div>
                             <div class="card-text">
                                 ${plataforma.descripcion ? `<p>${plataforma.descripcion}</p>` : '<p>Sin descripción</p>'}
