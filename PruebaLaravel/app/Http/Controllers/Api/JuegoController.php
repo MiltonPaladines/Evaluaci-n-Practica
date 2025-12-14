@@ -68,7 +68,7 @@ class JuegoController extends Controller
     //GET -> ID
     public function show(string $id)
     {
-        $juego = Juego::with(['plataformas','generos'])->where('activo',true)->find($id);//Buscar juego por ID con relaciones plataformas y generos
+        $juego = Juego::with(['plataforma','generos'])->find($id);//Buscar juego por ID con relaciones plataforma y generos
 
         if (!$juego) {
             return response()->json([

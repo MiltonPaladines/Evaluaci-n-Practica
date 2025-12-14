@@ -11,11 +11,13 @@ use App\Http\Controllers\Api\AuthController;
 //Rutas API 
 // 1. Rutas Públicas (Cualquiera entra)
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
  
 // Catálogo visible para todos (Solo Index y Show)
 Route::get('/juegos', [JuegoController::class, 'index']);
 Route::get('/juegos/{id}', [JuegoController::class, 'show']);
 Route::get('/plataformas', [PlataformaController::class, 'index']);
+Route::get('/generos', [GeneroController::class, 'index']);
  
 // 2. Rutas Protegidas (Requieren Token Y ser Admin)
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
@@ -29,5 +31,5 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
  
     // Gestión de Plataformas y Géneros (Todo el CRUD)
     Route::apiResource('plataformas', PlataformaController::class)->except(['index']); // Index es público
-    Route::apiResource('generos', GeneroController::class);
+    Route::apiResource('generos', GeneroController::class)->except(['index']); // Index es público
 });

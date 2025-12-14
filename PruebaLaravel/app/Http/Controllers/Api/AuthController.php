@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -52,5 +53,43 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Cierre de sesión exitoso'
         ], 200);
+    }
+
+    //Post api register - Crear nuevo usuario
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'sometimes|string|in:user,admin,cliente'
+        ]);
+
+        try {
+            //Crear nuevo usuario
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role ?? 'user'
+            ]);
+
+            //Crear token de acceso
+            $token = $user->createToken($user->role)->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario registrado exitosamente',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar usuario: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
