@@ -41,7 +41,7 @@ class JuegoController extends Controller
             'descripcion_larga' => 'nullable|string',
             'precio_normal' => 'required|numeric',
             'precio_oferta' => 'nullable|numeric|lt:precio_normal',
-            'imagen_url' => 'nullable|string',
+            'imagen_url' => 'nullable|string|url',
             'destacado' => 'boolean',
             'activo' => 'boolean',
             'plataforma_id' => 'required|exists:plataformas,id',//Validar la FK
@@ -49,7 +49,9 @@ class JuegoController extends Controller
             'generos.*' => 'exists:generos,id' //Validar cada genero
         ]);
 
-        $juego=Juego::create($request->all());//Crear el juego con los datos validados
+        $data = $request->all();
+        
+        $juego = Juego::create($data);//Crear el juego con los datos validados
 
         if ($request->has('generos')) {
             $juego->generos()->sync($request->input('generos'));//Sincroniza generos en la tabla pivote 
@@ -104,13 +106,22 @@ class JuegoController extends Controller
             'descripcion_larga' => 'nullable|string',
             'precio_normal' => 'sometimes|numeric',
             'precio_oferta' => 'nullable|numeric|lt:precio_normal',
-            'imagen_url' => 'sometimes|nullable|string',
+            'imagen_url' => 'sometimes|nullable|string|url',
             'destacado' => 'sometimes|boolean',
             'activo' => 'sometimes|boolean',
             'plataforma_id' => 'sometimes|required|exists:plataformas,id',
             'generos' => 'sometimes|array', 
             'generos.*' => 'exists:generos,id' 
         ]);//Validacion de los campos a actualizar
+
+        // Manejo de imagen con Firebase
+            $data = $request->all();
+
+        if ($request->hasFile('imagen')) {
+            $url = $this->firebaseService->uploadImage($request->file('imagen'), 'juegos');
+            $data['imagen_url'] = $url; // Guarda la URL pública en el campo imagen_url
+        }
+
 
         $juego->update($request->all());//Actualizar el juego con los datos validados
 
